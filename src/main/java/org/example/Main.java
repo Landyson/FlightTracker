@@ -12,10 +12,15 @@ public class Main {
         OpenSkyApi api = new OpenSkyApi();
 
         OpenSkyStates os = api.getStates(0, null,
-                new OpenSkyApi.BoundingBox(48.5553, 51.1172,12.2401,18.8531));
+                //new OpenSkyApi.BoundingBox(48.5553, 51.1172,12.2401,18.8531));
+                new OpenSkyApi.BoundingBox(36.4431, 60.1878, -16.8008, 46.1727));
+
 
         for(StateVector vector : os.getStates()){
-            System.out.println("letadlo " + vector.getCallsign() + " " + vector.getLatitude() + " " + vector.getLongitude() + " " + vector.getGeoAltitude() + " " + vector.getVelocity()*3.6 + " " + vector.getHeading());
-        }
+            System.out.println("letadlo " + vector.getCallsign() + " " + vector.getLatitude() + " " + vector.getLongitude() + " " + vector.getGeoAltitude() + " " + vector.getVelocity()*3.6 + " " + vector.getHeading() + " " + vector.getIcao24());
+        }*/
+
+        Window window = new Window();
+
     }
 }
