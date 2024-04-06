@@ -9,7 +9,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
 
-        OpenSkyApi api = new OpenSkyApi();
+        /*OpenSkyApi api = new OpenSkyApi();
 
         OpenSkyStates os = api.getStates(0, null,
                 //new OpenSkyApi.BoundingBox(48.5553, 51.1172,12.2401,18.8531));
