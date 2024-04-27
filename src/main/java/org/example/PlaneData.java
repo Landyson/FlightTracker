@@ -23,11 +23,13 @@ public class PlaneData {
 
     public void load(double[] box) throws Exception{
         try {
-            OpenSkyApi api = new OpenSkyApi();
+            OpenSkyApi api = new OpenSkyApi("Landys", "15NitraM06");
 
             OpenSkyStates os = api.getStates(0, null,
-                    new OpenSkyApi.BoundingBox(36.4431, 60.1878, -16.8008, 46.1727));
-                    //new OpenSkyApi.BoundingBox(box[3], box[1], box[0], box[2]));
+                    //new OpenSkyApi.BoundingBox(36.1425, 71.7779, -27.3476, 46.2217)
+                    new OpenSkyApi.BoundingBox(1.6438,74.6981,-132.3900,46.6099)
+            );
+
 
             for(StateVector vector : os.getStates()){
                 String callSign = vector.getCallsign();

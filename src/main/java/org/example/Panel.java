@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 
-public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener, ActionListener {
+public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener {
 
     private CountryData countryData;
     private double[] startPoint;
@@ -38,7 +38,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        Timer timer = new Timer(10000, this);
+        Timer timer = new Timer(5000, e -> {
+            updatePlaneData();
+            //System.out.println(planeData.planes.get(0).toString());
+            repaint();
+        });
         timer.setRepeats(true);
         timer.start();
     }
@@ -68,33 +72,54 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
                 }
                 path.closePath();
 
-                if (cv.getName().equalsIgnoreCase("Czech Republic")){
-                    g.setColor(new Color(0,255,0));
-                    g.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                }
-                else {
-                    g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-                    g.setColor(new Color(255,255,255));
-                }
+                g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g.setColor(new Color(255,255,255));
                 g.draw(path);
             }
         }
 
         //Planes
         for (Plane plane : planeData.planes){
-            //Circle
-            double[] gps = plane.getCoordinates();
-            int x = (int) (gps[0] * zoom + moveX);
-            int y = (int) (-gps[1] * zoom + moveY);
-            int size = (int) (Math.max(1, zoom / 25));
+            if (plane.getAltitude() > 30){
+                //Plane Icon
+                double[] gps = plane.getCoordinates();
+                int x = (int) (CountryData.wga84ToMercatorX(gps[0]) * zoom + moveX);
+                int y = (int) (-CountryData.wga84ToMercatorY(gps[1]) * zoom + moveY);
+                int size = (int) (Math.max(1, zoom / 50));
+                float stoke = (int) (Math.max(1, zoom / 125));
 
-            g.setColor(new Color(0, 0, 255));
-            g.fillOval(x - size/2, y - size/2, size, size);
+                g.setColor(new Color(0,0,0));
+                g.fillRect(x - size/2, y - size/2, size, size);
 
-            //Text
-            g.setColor(new Color(255,255,255));
-            g.setFont(new Font("Ariel", Font.BOLD, (int) Math.floor(zoom / 50)));
-            g.drawString(plane.getCallSign(), x, y);
+                g.setColor(new Color(53, 181, 68));
+                g.setStroke(new BasicStroke(stoke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
+                g.drawRect(x - size/2, y - size/2, size, size);
+
+                //Heading Arrow
+                double arrowLenght = plane.getVelocity() / 2500;
+                double ang = plane.getHeading() + 90;
+                double withX = (int) (CountryData.wga84ToMercatorX(gps[0] + Math.cos(Math.toRadians(ang)) * arrowLenght * -1) * zoom + moveX);
+                double withY = (int) (-CountryData.wga84ToMercatorY(gps[1] + Math.sin(Math.toRadians(ang)) * arrowLenght) * zoom + moveY);
+                Path2D path = new Path2D.Double();
+                path.moveTo(x, y);
+                path.lineTo(withX, withY);
+
+                g.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+                g.draw(path);
+
+                //Text
+                if (currentMouseX >= x - size/2.0 && currentMouseX <= x + size/2.0 && currentMouseY >= y - size/2.0 && currentMouseY <= y + size/2.0){
+
+                }
+
+                /*double offset = 1;
+                int textSize = (int) Math.floor(zoom / 50);
+                g.setColor(new Color(255,255,255));
+                g.setFont(new Font("System", Font.BOLD, textSize));
+                g.drawString(plane.getCallSign(), x - textSize, (int) (y - textSize * 3 - offset));
+                g.drawString(plane.getAltitudeATC(), x - textSize, (int) (y - textSize * 2 - offset));
+                g.drawString(String.valueOf((int) (Math.floor(plane.getVelocity() * Plane.M_TO_KNOTS))), x - textSize, (int) (y - textSize * 1 - offset));*/
+            }
         }
     }
 
@@ -158,12 +183,5 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        updatePlaneData();
-        System.out.println(planeData.planes.get(0).toString());
-        repaint();
     }
 }
