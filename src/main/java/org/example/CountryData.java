@@ -85,7 +85,8 @@ public class CountryData {
                 for (int y = 0; y < 2; y++) {
                     double num = Double.parseDouble(tempSplit[x * 2 + y]);
                     if (num != 0.0){
-                        tempGPS[x][y] = num;
+                        if (y == 0) tempGPS[x][y] = wga84ToMercatorX(num);
+                        else tempGPS[x][y] = wga84ToMercatorY(num);
                     }
                 }
             }
@@ -120,6 +121,14 @@ public class CountryData {
         }
         //x, y, width, height
         return new double[]{maxX, maxY, minX, minY};
+    }
+
+    public static double wga84ToMercatorX(double x){
+        return x;
+    }
+
+    public static double wga84ToMercatorY(double y){
+        return Math.log(Math.tan((90.0 + y) * Math.PI / 360.0)) / (Math.PI / 180.0);
     }
 
 }

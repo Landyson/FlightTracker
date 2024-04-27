@@ -20,6 +20,10 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     private double relesedX;
     private double relesedY;
 
+    private double currentMouseX;
+    private double currentMouseY;
+    private boolean viewAll = false;
+
     public Panel(){
         this.countryData = new CountryData("lib/world-administrative-boundaries.csv");
         CountryVector countryBox = countryData.nameToCountryVector("Czech Republic");
@@ -59,9 +63,10 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         g.setColor(new Color(255,255,255));
         g.setFont(new Font("Ariel", Font.BOLD, 30));
         g.drawString("zoom: " + zoomRounded, getWidth() / 8, getHeight() / 8);
+        g.drawString("GPS: " + mouseXToGPS(0), getWidth() / 8, getHeight() / 8 + 30);
 
         //Vectors
-        g.translate((double) getWidth() /2 + moveX * zoom, (double) getHeight() /2 + moveY * zoom);
+        g.translate((double) getWidth()/2 + moveX * zoom, (double) getHeight()/2 + moveY * zoom);
 
         for (CountryVector cv : countryData.getCountryVectors()){
             for (double[][] c : cv.getCoordinates()){
@@ -123,6 +128,12 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         }
     }
 
+    public double mouseXToGPS(double mouseX){
+        double relativeX = 360.0 / (getWidth() + moveX * zoom); //One Degree to pixels
+        double mapToScreen = getWidth() / 360.0;
+        return mouseX * relativeX;
+    }
+
     public void updatePlaneData(){
         try {
             this.planeData = new PlaneData(countryData.boxForCountry("Czech Republic"));
@@ -155,7 +166,9 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
     @Override
     public void mouseMoved(MouseEvent e) {
-
+        currentMouseX = e.getX();
+        currentMouseY = e.getY();
+        repaint();
     }
 
     @Override
