@@ -12,6 +12,7 @@ public class Window extends JFrame {
         Panel panel = new Panel();
         this.add(panel);
 
+        this.setFocusable(true);
         this.setVisible(true);
     }
 

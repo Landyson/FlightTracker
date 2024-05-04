@@ -5,14 +5,16 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 
-public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener {
+public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener, KeyListener {
 
     private CountryData countryData;
     private double[] startPoint;
 
     private PlaneData planeData;
 
-    private double zoom = 30;
+    private CityData cityData;
+
+    private double zoom = 1;
     private double moveX;
     private double moveY;
     private double pressedX;
@@ -26,9 +28,10 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
     public Panel(){
         this.countryData = new CountryData("lib/world-administrative-boundaries.csv");
+        this.cityData = new CityData("lib/worldcities.csv", 250000);
         CountryVector countryBox = countryData.nameToCountryVector("Czech Republic");
 
-        this.startPoint = countryBox.getGeoPoint();
+        this.startPoint = new double[]{20,0};
         this.moveX = startPoint[0];
         this.moveY = startPoint[1];
         this.pressedX = startPoint[0];
@@ -41,10 +44,10 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.addMouseWheelListener(this);
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
+        addKeyListener(this);
 
         Timer timer = new Timer(5000, e -> {
             updatePlaneData();
-            //System.out.println(planeData.planes.get(0).toString());
             repaint();
         });
         timer.setRepeats(true);
@@ -63,11 +66,26 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         g.setColor(new Color(255,255,255));
         g.setFont(new Font("Ariel", Font.BOLD, 30));
         g.drawString("zoom: " + zoomRounded, getWidth() / 8, getHeight() / 8);
-        g.drawString("GPS: " + mouseXToGPS(0), getWidth() / 8, getHeight() / 8 + 30);
+        g.drawString("GPS: " + mouseXToGPS(currentMouseX) + ", " + mouseYToGPS(currentMouseY), getWidth() / 8, getHeight() / 8 + 30);
 
-        //Vectors
+        //Translate
         g.translate((double) getWidth()/2 + moveX * zoom, (double) getHeight()/2 + moveY * zoom);
 
+        //Cities
+        for (City c : cityData.getCities()){
+            //int size = (int) ((Math.max(2, Math.log10(c.getPopulation() / 1000000.0) * zoom)));
+            int size = (int) (Math.max(1, 0.2 * zoom));
+            int x = (int) (CountryData.wga84ToMercatorX(c.getCoordinates()[0]) * zoom + moveX);
+            int y = (int) (-CountryData.wga84ToMercatorY(c.getCoordinates()[1]) * zoom + moveY);
+            g.setColor(new Color(30,30,30));
+            g.fillOval(x - size/2, y - size/2, size, size);
+
+            g.setColor(new Color(134, 134, 134));
+            g.setFont(new Font("Ariel", Font.BOLD, size/5));
+            g.drawString(c.getName().toUpperCase(), x - size/2, y + size/10);
+        }
+
+        //Vectors
         for (CountryVector cv : countryData.getCountryVectors()){
             for (double[][] c : cv.getCoordinates()){
                 Path2D path = new Path2D.Double();
@@ -86,19 +104,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         //Planes
         for (Plane plane : planeData.planes){
             if (plane.getAltitude() > 30){
-                //Plane Icon
                 double[] gps = plane.getCoordinates();
                 int x = (int) (CountryData.wga84ToMercatorX(gps[0]) * zoom + moveX);
                 int y = (int) (-CountryData.wga84ToMercatorY(gps[1]) * zoom + moveY);
                 int size = (int) (Math.max(1, zoom / 50));
                 float stoke = (int) (Math.max(1, zoom / 125));
-
-                g.setColor(new Color(0,0,0));
-                g.fillRect(x - size/2, y - size/2, size, size);
-
-                g.setColor(new Color(53, 181, 68));
-                g.setStroke(new BasicStroke(stoke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
-                g.drawRect(x - size/2, y - size/2, size, size);
 
                 //Heading Arrow
                 double arrowLenght = plane.getVelocity() / 2500;
@@ -111,6 +121,14 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
                 g.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.draw(path);
+
+                //Plane Icon
+                g.setColor(new Color(0,0,0));
+                g.fillRect(x - size/2, y - size/2, size, size);
+
+                g.setColor(new Color(53, 181, 68));
+                g.setStroke(new BasicStroke(stoke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER));
+                g.drawRect(x - size/2, y - size/2, size, size);
 
                 //Text
                 if (currentMouseX >= x - size/2.0 && currentMouseX <= x + size/2.0 && currentMouseY >= y - size/2.0 && currentMouseY <= y + size/2.0){
@@ -131,9 +149,15 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     }
 
     public double mouseXToGPS(double mouseX){
-        double relativeX = 360.0 / (getWidth() + moveX * zoom); //One Degree to pixels
-        double mapToScreen = getWidth() / 360.0;
-        return mouseX * relativeX;
+        double mapToFull = 360.0 / getWidth();
+        mouseX -= getWidth()/2.0;
+        return mouseX * mapToFull - moveX;
+    }
+
+    public double mouseYToGPS(double mouseY){
+        mouseY -= getHeight()/2.0;
+        //System.out.println("move: x: " + moveX + ", y: " + moveY);
+        return (mouseY / zoom) + moveY;
     }
 
     public void updatePlaneData(){
