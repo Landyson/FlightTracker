@@ -117,13 +117,15 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
                 }
 
-                /*double offset = 1;
-                int textSize = (int) Math.floor(zoom / 50);
-                g.setColor(new Color(255,255,255));
-                g.setFont(new Font("System", Font.BOLD, textSize));
-                g.drawString(plane.getCallSign(), x - textSize, (int) (y - textSize * 3 - offset));
-                g.drawString(plane.getAltitudeATC(), x - textSize, (int) (y - textSize * 2 - offset));
-                g.drawString(String.valueOf((int) (Math.floor(plane.getVelocity() * Plane.M_TO_KNOTS))), x - textSize, (int) (y - textSize * 1 - offset));*/
+                if (viewAll){
+                    double offset = 1;
+                    int textSize = (int) Math.floor(zoom / 50);
+                    g.setColor(new Color(53,181,68));
+                    g.setFont(new Font("System", Font.BOLD, textSize));
+                    g.drawString(plane.getCallSign(), x - textSize, (int) (y - textSize * 3 - offset));
+                    g.drawString(plane.getAltitudeATC(), x - textSize, (int) (y - textSize * 2 - offset));
+                    g.drawString(String.valueOf((int) (Math.floor(plane.getVelocity() * Plane.M_TO_KNOTS))), x - textSize, (int) (y - textSize * 1 - offset));
+                }
             }
         }
     }
@@ -196,5 +198,27 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        System.out.println("sdsdfasdff0");
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        System.out.println("sdsdfasdff1");
+        if (e.getKeyCode() == KeyEvent.VK_I) {
+            viewAll = !viewAll;
+            System.out.println("View changed");
+        }
+        else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) System.exit(0);
+
+        repaint();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        System.out.println("sdsdfasdff2");
     }
 }
