@@ -9,7 +9,7 @@ public class CountryVector {
     private String name;
     private String continent;
 
-    public CountryVector(ArrayList<double[][]> coordinates, double[] geoPoint, String name, String continent){
+    public CountryVector(ArrayList<double[][]> coordinates, double[] geoPoint, String name, String continent) {
         this.coordinates = coordinates;
         this.geoPoint = geoPoint;
         this.name = name;

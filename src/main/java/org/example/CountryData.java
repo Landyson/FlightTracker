@@ -22,13 +22,13 @@ public class CountryData {
         this.countryVectors = countryVectors;
     }
 
-    public void load(String path){
+    public void load(String path) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
 
             br.readLine();
             String s = "";
-            while ((s = br.readLine()) != null){
+            while ((s = br.readLine()) != null) {
                 String[] data = s.split(";");
 
                 ArrayList<double[][]> cooridnates = stringToCoordinates(data[1]);
@@ -42,13 +42,12 @@ public class CountryData {
 
                 countryVectors.add(new CountryVector(cooridnates, geoPoint, name, continent));
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public ArrayList<double[][]> stringToCoordinates(String data){
+    public ArrayList<double[][]> stringToCoordinates(String data) {
         data = data.replace("\"{\"\"coordinates\"\": ", "");
         data = data.replace(", \"\"type\"\": \"\"Polygon\"\"}\"", "");
         data = data.replace(", \"\"type\"\": \"\"MultiPolygon\"\"}\"", "");
@@ -59,10 +58,10 @@ public class CountryData {
 
         int polyCount = 0;
         for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == '[' && chars[i + 1] == '[' && chars[i + 2] == '['){
+            if (chars[i] == '[' && chars[i + 1] == '[' && chars[i + 2] == '[') {
                 polyStrings.add(new StringBuilder());
                 for (int j = i + 1; j < chars.length; j++) {
-                    if (chars[j] == ']' && chars[j + 1] == ']' && chars[j + 2] == ']'){
+                    if (chars[j] == ']' && chars[j + 1] == ']' && chars[j + 2] == ']') {
                         i = j + 3;
                         break;
                     }
@@ -84,7 +83,7 @@ public class CountryData {
             for (int x = 0; x < tempSplit.length / 2; x++) {
                 for (int y = 0; y < 2; y++) {
                     double num = Double.parseDouble(tempSplit[x * 2 + y]);
-                    if (num != 0.0){
+                    if (num != 0.0) {
                         if (y == 0) tempGPS[x][y] = wga84ToMercatorX(num);
                         else tempGPS[x][y] = wga84ToMercatorY(num);
                     }
@@ -95,24 +94,24 @@ public class CountryData {
         return result;
     }
 
-    public CountryVector nameToCountryVector(String name){
-        for (CountryVector cv : countryVectors){
-            if (cv.getName().equalsIgnoreCase(name)){
+    public CountryVector nameToCountryVector(String name) {
+        for (CountryVector cv : countryVectors) {
+            if (cv.getName().equalsIgnoreCase(name)) {
                 return cv;
             }
         }
         throw new InputMismatchException();
     }
 
-    public double[] boxForCountry(String name){
+    public double[] boxForCountry(String name) {
         double minX = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY;
         double minY = Double.POSITIVE_INFINITY;
         double maxY = Double.NEGATIVE_INFINITY;
 
         CountryVector cv = nameToCountryVector(name);
-        for (double[][] c : cv.getCoordinates()){
-            for (double[] gps : c){
+        for (double[][] c : cv.getCoordinates()) {
+            for (double[] gps : c) {
                 if (gps[0] < minX) minX = gps[0];
                 if (gps[0] > maxX) maxX = gps[0];
                 if (gps[1] < minY) minY = gps[1];
@@ -123,11 +122,11 @@ public class CountryData {
         return new double[]{maxX, maxY, minX, minY};
     }
 
-    public static double wga84ToMercatorX(double x){
+    public static double wga84ToMercatorX(double x) {
         return x;
     }
 
-    public static double wga84ToMercatorY(double y){
+    public static double wga84ToMercatorY(double y) {
         return Math.log(Math.tan((90.0 + y) * Math.PI / 360.0)) / (Math.PI / 180.0);
     }
 

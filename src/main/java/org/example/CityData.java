@@ -9,7 +9,7 @@ public class CityData {
     private ArrayList<City> cities = new ArrayList<>();
     private int cutoffPop;
 
-    public CityData(String path, int cutoffPop){
+    public CityData(String path, int cutoffPop) {
         this.cutoffPop = cutoffPop;
         load(path);
     }
@@ -22,13 +22,13 @@ public class CityData {
         this.cities = cities;
     }
 
-    public void load(String path){
+    public void load(String path) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
 
             br.readLine();
             String s = "";
-            while ((s = br.readLine()) != null){
+            while ((s = br.readLine()) != null) {
                 s = s.replace("\"", "");
                 String[] data = s.split(",");
 
@@ -36,14 +36,14 @@ public class CityData {
                 int offset = 0;
                 for (int i = 0; i < 10; i++) {
                     try {
-                        if (data[9 + offset] == null || data[9 + offset].equalsIgnoreCase("") || Integer.parseInt(data[9 + offset]) >= 50000000) continue;
+                        if (data[9 + offset] == null || data[9 + offset].equalsIgnoreCase("") || Integer.parseInt(data[9 + offset]) >= 50000000)
+                            continue;
                         if (Integer.parseInt(data[9 + offset]) < cutoffPop) break;
                         System.out.println(data[9 + offset]);
 
                         pop = Integer.parseInt(data[9 + offset]);
                         break;
-                    }
-                    catch (Exception ignored){
+                    } catch (Exception ignored) {
                         offset++;
                     }
                 }
@@ -51,8 +51,7 @@ public class CityData {
 
                 cities.add(new City(data[1], new double[]{Double.parseDouble(data[3]), Double.parseDouble(data[2])}, data[4], pop));
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
