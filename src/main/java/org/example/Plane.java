@@ -16,7 +16,7 @@ public class Plane {
     public static final double EARTH_RADIUS_M = 6366707.0195;
 
     public Plane(String callSign, double[] coordinates, double altitude, double velocity, double heading) {
-        this.callSign = callSign;
+        setCallSign(callSign);
         this.coordinates = coordinates;
         setAltitude(altitude);
         setAltitudeATC(altitude);
@@ -29,7 +29,9 @@ public class Plane {
     }
 
     public void setCallSign(String callSign) {
-        this.callSign = callSign;
+        if (callSign.equalsIgnoreCase("")) this.callSign = "N/A";
+
+        else this.callSign = callSign;
     }
 
     public double[] getCoordinates() {
@@ -45,7 +47,8 @@ public class Plane {
     }
 
     public void setAltitude(double altitude) {
-        this.altitude = altitude * M_TO_FT;
+        if (altitude <= 10) this.altitude = 0;
+        else this.altitude = altitude * M_TO_FT;
     }
 
     public String getAltitudeATC() {

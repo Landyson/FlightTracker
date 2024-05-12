@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 
-public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener, KeyListener {
+public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener {
 
     private CountryData countryData;
     private double[] startPoint;
@@ -24,7 +24,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
     private double currentMouseX;
     private double currentMouseY;
+
+    private boolean viewTable = false;
     private boolean viewAll = false;
+    private boolean viewCities = true;
+    private int tablePage = 0;
 
     public Panel(){
         this.countryData = new CountryData("lib/world-administrative-boundaries.csv");
@@ -44,7 +48,6 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.addMouseWheelListener(this);
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
-        addKeyListener(this);
 
         Timer timer = new Timer(5000, e -> {
             updatePlaneData();
@@ -54,6 +57,38 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         timer.start();
     }
 
+    public boolean isViewAll() {
+        return viewAll;
+    }
+
+    public void setViewAll(boolean viewAll) {
+        this.viewAll = viewAll;
+    }
+
+    public boolean isViewTable() {
+        return viewTable;
+    }
+
+    public void setViewTable(boolean viewTable) {
+        this.viewTable = viewTable;
+    }
+
+    public boolean isViewCities() {
+        return viewCities;
+    }
+
+    public void setViewCities(boolean viewCities) {
+        this.viewCities = viewCities;
+    }
+
+    public int getTablePage() {
+        return this.tablePage;
+    }
+
+    public void setTablePage(int tablePage) {
+        this.tablePage = tablePage;
+    }
+
     public void paintComponent(Graphics g1d){
         Graphics2D g = (Graphics2D) g1d;
 
@@ -61,28 +96,23 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         g.setColor(new Color(0,0,0));
         g.fillRect(0,0, getWidth(), getHeight());
 
-        //Zoom text
-        double zoomRounded = Math.round(zoom * 10.0) / 10.0;
-        g.setColor(new Color(255,255,255));
-        g.setFont(new Font("Ariel", Font.BOLD, 30));
-        g.drawString("zoom: " + zoomRounded, getWidth() / 8, getHeight() / 8);
-        g.drawString("GPS: " + mouseXToGPS(currentMouseX) + ", " + mouseYToGPS(currentMouseY), getWidth() / 8, getHeight() / 8 + 30);
-
         //Translate
         g.translate((double) getWidth()/2 + moveX * zoom, (double) getHeight()/2 + moveY * zoom);
 
         //Cities
-        for (City c : cityData.getCities()){
-            //int size = (int) ((Math.max(2, Math.log10(c.getPopulation() / 1000000.0) * zoom)));
-            int size = (int) (Math.max(1, 0.2 * zoom));
-            int x = (int) (CountryData.wga84ToMercatorX(c.getCoordinates()[0]) * zoom + moveX);
-            int y = (int) (-CountryData.wga84ToMercatorY(c.getCoordinates()[1]) * zoom + moveY);
-            g.setColor(new Color(30,30,30));
-            g.fillOval(x - size/2, y - size/2, size, size);
+        if (viewCities){
+            for (City c : cityData.getCities()){
+                //int size = (int) ((Math.max(2, Math.log10(c.getPopulation() / 1000000.0) * zoom)));
+                int size = (int) (Math.max(1, 0.2 * zoom));
+                int x = (int) (CountryData.wga84ToMercatorX(c.getCoordinates()[0]) * zoom + moveX);
+                int y = (int) (-CountryData.wga84ToMercatorY(c.getCoordinates()[1]) * zoom + moveY);
+                g.setColor(new Color(30,30,30, 30));
+                g.fillOval(x - size/2, y - size/2, size, size);
 
-            g.setColor(new Color(134, 134, 134));
-            g.setFont(new Font("Ariel", Font.BOLD, size/5));
-            g.drawString(c.getName().toUpperCase(), x - size/2, y + size/10);
+                g.setColor(new Color(134, 134, 134));
+                g.setFont(new Font("Ariel", Font.BOLD, size/5));
+                g.drawString(c.getName().toUpperCase(), x - size/2, y + size/10);
+            }
         }
 
         //Vectors
@@ -146,12 +176,99 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
                 }
             }
         }
+
+        //Translate back
+        g.translate((double) -getWidth()/2 - moveX * zoom, (double) -getHeight()/2 - moveY * zoom);
+
+        //Zoom text
+        double zoomRounded = Math.round(zoom * 10.0) / 10.0;
+        g.setColor(new Color(255,255,255));
+        g.setFont(new Font("Ariel", Font.BOLD, 30));
+        g.drawString("zoom: " + zoomRounded, getWidth() / 8, getHeight() / 8);
+        g.drawString("GPS: " + mouseXToGPS(currentMouseX) + ", " + mouseYToGPS(currentMouseY), getWidth() / 8, getHeight() / 8 + 30);
+
+        //Table
+        if (viewTable){
+            int minX = (int) (getWidth() - (getWidth() / 3.0));
+            int minY = 0;
+            int maxX = (int) (getWidth() / 3.0) - 35;
+            int maxY = getHeight();
+
+            g.setColor(new Color(25,25,25));
+            g.fillRect(minX, minY, maxX, maxY);
+
+            int fontSize = 20;
+            tablePage = Math.max(0, Math.min(planeData.planes.size() / (maxY / fontSize) - 1, tablePage));
+            for (int i = 0; i < maxY / fontSize - 1; i++) {
+                int prevCells = 0;
+                for (int j = 0; j < 3; j++) {
+                    int offset = 10;
+                    int cellSize = switch (j){
+                        case 0 -> 75;
+                        case 1 -> 125;
+                        case 2 -> 125;
+                        default -> 10;
+                    };
+                    g.setColor(new Color(5,5,5));
+                    g.fillRect((minX + fontSize) + prevCells, minY + fontSize * (i + 1), cellSize - offset, fontSize);
+
+                    String text = switch (j){
+                        case 0 -> i + 1 + (maxY / fontSize) * tablePage + ".";
+                        case 1 -> planeData.planes.get(i + (maxY / fontSize) * tablePage).getCallSign();
+                        case 2 -> Math.floor(planeData.planes.get(i + (maxY / fontSize) * tablePage).getAltitude()) + " ft";
+                        //case 3 -> planeData.planes.get(i + (maxY / fontSize) * tablePage).getVelocity() + " km/h";
+                        default -> "ERROR";
+                    };
+                    g.setColor(new Color(255,255,255));
+                    g.setFont(new Font("Ariel", Font.BOLD, fontSize));
+                    g.drawString(text, (minX + fontSize) + prevCells + offset, minY + fontSize * (i + 2));
+
+                    prevCells += cellSize;
+                }
+            }
+        }
+
+        //Keys
+        int minX = getWidth() - 35;
+        int minY = 0;
+        int maxX = minX;
+        int maxY = getHeight() / 7;
+
+        int fontSize = 50;
+        int offset = 5;
+        //Table
+        if (viewTable) g.setColor(new Color(0, 105, 0));
+        else g.setColor(new Color(25,25,25));
+        g.fillRect(minX, minY, maxX, maxY);
+
+        g.setColor(new Color(255,255,255));
+        g.setFont(new Font("Ariel", Font.BOLD, fontSize));
+        g.drawString("T", minX, (int) (maxY / 2.0 + fontSize / 2));
+
+        //Text
+        if (viewAll) g.setColor(new Color(0, 105, 0));
+        else g.setColor(new Color(25,25,25));
+        g.fillRect(minX, minY + maxY + offset, maxX + maxY + offset, maxY);
+
+        g.setColor(new Color(255,255,255));
+        g.setFont(new Font("Ariel", Font.BOLD, fontSize));
+        g.drawString(" I", minX, (int) ((maxY / 2.0) + maxY + offset + fontSize / 2));
+
+        //Cities
+        if (viewCities) g.setColor(new Color(0, 105, 0));
+        else g.setColor(new Color(25,25,25));
+        g.fillRect(minX, minY + maxY*2 + offset*2, maxX + maxY*2 + offset*2, maxY);
+
+        g.setColor(new Color(255,255,255));
+        g.setFont(new Font("Ariel", Font.BOLD, fontSize));
+        g.drawString("C", minX, (int) ((maxY / 2.0) + maxY*2 + offset*2 + fontSize / 2));
     }
 
     public double mouseXToGPS(double mouseX){
         double mapToFull = 360.0 / getWidth();
         mouseX -= getWidth()/2.0;
-        return mouseX * mapToFull - moveX;
+        //return mouseX * mapToFull - moveX;
+        return mouseX /  moveX * zoom;
     }
 
     public double mouseYToGPS(double mouseY){
@@ -222,27 +339,5 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        System.out.println("sdsdfasdff0");
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        System.out.println("sdsdfasdff1");
-        if (e.getKeyCode() == KeyEvent.VK_I) {
-            viewAll = !viewAll;
-            System.out.println("View changed");
-        }
-        else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) System.exit(0);
-
-        repaint();
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        System.out.println("sdsdfasdff2");
     }
 }
