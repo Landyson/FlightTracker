@@ -70,7 +70,8 @@ public class Plane {
     }
 
     public void setVelocity(double velocity) {
-        this.velocity = velocity;
+        if (velocity >= 1000) this.velocity = 1000;
+        else this.velocity = velocity;
     }
 
     public double getHeading() {
@@ -79,6 +80,13 @@ public class Plane {
 
     public void setHeading(double heading) {
         this.heading = heading;
+    }
+
+    public void animate(int millis){
+        double currentVelocity = this.velocity * (millis / 1000.0) / (EARTH_RADIUS_M / 500);
+        double ang = heading + 90;
+        this.coordinates[0] -= Math.cos(Math.toRadians(ang)) * currentVelocity;
+        this.coordinates[1] += Math.sin(Math.toRadians(ang)) * currentVelocity;
     }
 
     @Override

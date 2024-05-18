@@ -24,6 +24,8 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
     private double currentMouseX;
     private double currentMouseY;
+    private double deltaTime;
+    private long lastTime = System.currentTimeMillis();
 
     private boolean viewTable = false;
     private boolean viewAll = false;
@@ -48,6 +50,19 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.addMouseWheelListener(this);
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
+
+        int millis = 16;
+
+        Timer fps = new Timer(millis, e -> {
+            deltaTime = System.currentTimeMillis() - lastTime + millis;
+            //System.out.println(deltaTime);
+            for (Plane p : planeData.planes){
+                p.animate((int) deltaTime);
+            }
+            repaint();
+        });
+        fps.setRepeats(true);
+        fps.start();
 
         Timer timer = new Timer(5000, e -> {
             updatePlaneData();
@@ -198,30 +213,52 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
             g.fillRect(minX, minY, maxX, maxY);
 
             int fontSize = 20;
-            tablePage = Math.max(0, Math.min(planeData.planes.size() / (maxY / fontSize) - 1, tablePage));
-            for (int i = 0; i < maxY / fontSize - 1; i++) {
+            int headerOffset = 2;
+            int offset = 10;
+            tablePage = Math.max(0, Math.min(planeData.planes.size() / (maxY / fontSize) - headerOffset, tablePage));
+            for (int i = -1; i < (maxY / fontSize) - headerOffset; i++) {
                 int prevCells = 0;
-                for (int j = 0; j < 3; j++) {
-                    int offset = 10;
+                for (int j = 0; j < 4; j++) {
+                    int x = (minX + fontSize) + prevCells;
+                    int y = minY + fontSize * (i + headerOffset) + offset;
+
                     int cellSize = switch (j){
-                        case 0 -> 75;
-                        case 1 -> 125;
+                        case 0 -> 100;
+                        case 1 -> 135;
                         case 2 -> 125;
+                        case 3 -> 135;
                         default -> 10;
                     };
-                    g.setColor(new Color(5,5,5));
-                    g.fillRect((minX + fontSize) + prevCells, minY + fontSize * (i + 1), cellSize - offset, fontSize);
 
-                    String text = switch (j){
-                        case 0 -> i + 1 + (maxY / fontSize) * tablePage + ".";
-                        case 1 -> planeData.planes.get(i + (maxY / fontSize) * tablePage).getCallSign();
-                        case 2 -> Math.floor(planeData.planes.get(i + (maxY / fontSize) * tablePage).getAltitude()) + " ft";
-                        //case 3 -> planeData.planes.get(i + (maxY / fontSize) * tablePage).getVelocity() + " km/h";
-                        default -> "ERROR";
-                    };
+                    Color cellColor;
+                    //currentMouseX <= x && currentMouseX >= x + cellSize - offset && currentMouseY <= y && currentMouseY >= y - fontSize + offset / 10.0
+                    if (i == -1) cellColor = new Color(20,20,20);
+                    else cellColor = new Color(5,5,5);
+                    g.setColor(cellColor);
+                    g.fillRect(x, y, cellSize - offset, -fontSize + offset / 10);
+
+                    String text;
+                    if (i == -1){
+                        text = switch (j){
+                            case 0 -> "ORDER";
+                            case 1 -> "CALL SIGN";
+                            case 2 -> "ALTITUDE";
+                            case 3 -> "VELOCITY";
+                            default -> "ERROR";
+                        };
+                    }
+                    else {
+                        text = switch (j){
+                            case 0 -> i + 1 + (maxY / fontSize - headerOffset) * tablePage + ".";
+                            case 1 -> planeData.planes.get(i + (maxY / fontSize - headerOffset) * tablePage).getCallSign();
+                            case 2 -> ((int) Math.floor(planeData.planes.get(i + (maxY / fontSize - headerOffset) * tablePage).getAltitude())) + " ft";
+                            case 3 -> ((int) Math.floor(planeData.planes.get(i + (maxY / fontSize - headerOffset) * tablePage).getVelocity() * Plane.M_TO_KNOTS)) + " kts";
+                            default -> "ERROR";
+                        };
+                    }
                     g.setColor(new Color(255,255,255));
                     g.setFont(new Font("Ariel", Font.BOLD, fontSize));
-                    g.drawString(text, (minX + fontSize) + prevCells + offset, minY + fontSize * (i + 2));
+                    g.drawString(text, x + offset, y);
 
                     prevCells += cellSize;
                 }
@@ -262,6 +299,8 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         g.setColor(new Color(255,255,255));
         g.setFont(new Font("Ariel", Font.BOLD, fontSize));
         g.drawString("C", minX, (int) ((maxY / 2.0) + maxY*2 + offset*2 + fontSize / 2));
+
+        lastTime = System.currentTimeMillis();
     }
 
     public double mouseXToGPS(double mouseX){
