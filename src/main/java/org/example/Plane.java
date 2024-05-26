@@ -11,8 +11,19 @@ public class Plane {
     private double velocity;
     private double heading;
 
+    /**
+     * Conversion factor from meters per second to knots.
+     */
     public static final double M_TO_KNOTS = 1.944;
+
+    /**
+     * Conversion factor from meters to feet.
+     */
     public static final double M_TO_FT = 3.2808399;
+
+    /**
+     * The radius of the Earth in meters.
+     */
     public static final double EARTH_RADIUS_M = 6366707.0195;
 
     public Plane(String callSign, double[] coordinates, double altitude, double velocity, double heading) {
@@ -28,6 +39,10 @@ public class Plane {
         return callSign;
     }
 
+    /**
+     * Sets the plane's call sign.
+     * @param callSign the plane's call sign
+     */
     public void setCallSign(String callSign) {
         if (callSign.equalsIgnoreCase("")) this.callSign = "N/A";
 
@@ -46,6 +61,10 @@ public class Plane {
         return altitude;
     }
 
+    /**
+     * Sets the plane's altitude to 0ft if plane is lower than 10ft.
+     * @param altitude is same
+     */
     public void setAltitude(double altitude) {
         if (altitude <= 10) this.altitude = 0;
         else this.altitude = altitude * M_TO_FT;
@@ -55,6 +74,10 @@ public class Plane {
         return altitudeATC;
     }
 
+    /**
+     * Sets the plane's altitude in ATC format.
+     * @param altitude the plane's altitude in meters
+     */
     public void setAltitudeATC(double altitude) {
         if (altitude <= 0) this.altitudeATC = "LANDED";
         else {
@@ -69,6 +92,10 @@ public class Plane {
         return velocity;
     }
 
+    /**
+     * Sets the plane's velocity to 1000 if it's bigger than that.
+     * @param velocity the plane's velocity in meters per second
+     */
     public void setVelocity(double velocity) {
         if (velocity >= 1000) this.velocity = 1000;
         else this.velocity = velocity;
@@ -82,6 +109,10 @@ public class Plane {
         this.heading = heading;
     }
 
+    /**
+     * Animates the plane's movement based on its velocity and heading.
+     * @param millis the number of milliseconds to animate
+     */
     public void animate(int millis){
         double currentVelocity = this.velocity * (millis / 1000.0) / (EARTH_RADIUS_M / 500);
         double ang = heading + 90;

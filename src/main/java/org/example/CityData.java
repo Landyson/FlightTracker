@@ -9,6 +9,12 @@ public class CityData {
     private ArrayList<City> cities = new ArrayList<>();
     private int cutoffPop;
 
+    /**
+     * Constructs a CityData object with the specified file path and population cutoff.
+     *
+     * @param path      the path to the file containing city data
+     * @param cutoffPop the minimum population required for a city to be included in the list
+     */
     public CityData(String path, int cutoffPop) {
         this.cutoffPop = cutoffPop;
         load(path);
@@ -22,6 +28,11 @@ public class CityData {
         this.cities = cities;
     }
 
+    /**
+     * Loads city data from a file and adds cities to the list if they meet the population cutoff.
+     *
+     * @param path the path to the file containing city data
+     */
     public void load(String path) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));

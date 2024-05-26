@@ -115,6 +115,14 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.tablePage = tablePage;
     }
 
+    /**
+     * Paints the components of this Panel. This method is responsible for rendering
+     * the background, translating the coordinate system, and drawing various elements
+     * such as cities, country vectors, planes, zoom level, a table, and keys. It handles
+     * the visual representation based on current state and user interactions.
+     *
+     * @param g1d the Graphics object used for drawing
+     */
     public void paintComponent(Graphics g1d){
         Graphics2D g = (Graphics2D) g1d;
 
@@ -242,7 +250,6 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
                     };
 
                     Color cellColor;
-                    //currentMouseX <= x && currentMouseX >= x + cellSize - offset && currentMouseY <= y && currentMouseY >= y - fontSize + offset / 10.0
                     if (i == -1) cellColor = new Color(20,20,20);
                     else cellColor = new Color(5,5,5);
                     g.setColor(cellColor);
@@ -314,19 +321,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         lastTime = System.currentTimeMillis();
     }
 
-    public double mouseXToGPS(double mouseX){
-        double mapToFull = 360.0 / getWidth();
-        mouseX -= getWidth()/2.0;
-        //return mouseX * mapToFull - moveX;
-        return mouseX /  moveX * zoom;
-    }
-
-    public double mouseYToGPS(double mouseY){
-        mouseY -= getHeight()/2.0;
-        //System.out.println("move: x: " + moveX + ", y: " + moveY);
-        return (mouseY / zoom) + moveY;
-    }
-
+    /**
+     * This method attempts to fetch new plane data from an external source,
+     * If the data retrieval fails, it catches he exception, displays an error message to the user,
+     * and generates random plane data for visualization purposes.
+     */
     public void updatePlaneData(){
         try {
             this.planeData = new PlaneData();
@@ -340,6 +339,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         }
     }
 
+    /**
+     * Handles the mouse wheel moved events to adjust the zoom level and zoom level does not drop below 1.
+     *
+     * @param e the MouseWheelEvent object representing the mouse wheel event
+     */
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         double zoomDPI = 1.5;
@@ -350,6 +354,11 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         repaint();
     }
 
+    /**
+     * This method adjusts the view position based on the mouse movement and the current zoom level.
+     *
+     * @param e the MouseEvent object representing the mouse dragged event
+     */
     @Override
     public void mouseDragged(MouseEvent e) {
         double dpi = 0.122;

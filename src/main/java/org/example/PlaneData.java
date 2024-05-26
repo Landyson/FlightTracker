@@ -33,12 +33,15 @@ public class PlaneData {
         randomGeneratePlanes(2000);
     }
 
-    public void load(double[] box) throws Exception {
+    /**
+     * Loads plane data from the OpenSky API.
+     * @throws Exception if there was an error loading the data
+     */
+    public void load() throws Exception {
         try {
-            OpenSkyApi api = new OpenSkyApi("Landys", "15NitraM06");
+            OpenSkyApi api = new OpenSkyApi("Landys", "flighttracker");
 
             OpenSkyStates os = api.getStates(0, null,
-                    //new OpenSkyApi.BoundingBox(36.1425, 71.7779, -27.3476, 46.2217)
                     new OpenSkyApi.BoundingBox(1.6438, 74.6981, -132.3900, 46.6099)
             );
 

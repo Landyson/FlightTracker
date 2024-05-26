@@ -22,6 +22,11 @@ public class CountryData {
         this.countryVectors = countryVectors;
     }
 
+    /**
+     * Loads country data from a file and adds country vectors to the list.
+     *
+     * @param path the path to the file containing country data
+     */
     public void load(String path) {
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
@@ -47,6 +52,12 @@ public class CountryData {
         }
     }
 
+    /**
+     * Converts a string of coordinates to an ArrayList of double[][] arrays.
+     *
+     * @param data the string of coordinates
+     * @return an ArrayList of double[][] arrays representing the coordinates
+     */
     public ArrayList<double[][]> stringToCoordinates(String data) {
         data = data.replace("\"{\"\"coordinates\"\": ", "");
         data = data.replace(", \"\"type\"\": \"\"Polygon\"\"}\"", "");
@@ -94,6 +105,13 @@ public class CountryData {
         return result;
     }
 
+    /**
+     * Returns the CountryVector object with the specified name.
+     *
+     * @param name the name of the country
+     * @return the CountryVector object with the specified name
+     * @throws InputMismatchException if no CountryVector object with the specified name is found
+     */
     public CountryVector nameToCountryVector(String name) {
         for (CountryVector cv : countryVectors) {
             if (cv.getName().equalsIgnoreCase(name)) {
@@ -102,6 +120,13 @@ public class CountryData {
         }
         throw new InputMismatchException();
     }
+
+    /**
+     * Returns an array of doubles representing the bounding box for the country with the specified name.
+     *
+     * @param name the name of the country
+     * @return an array of doubles representing the bounding box for the country with the specified name, where the first element is the maximum longitude, the second element is the maximum latitude, the third element is the minimum longitude, and the fourth element is the minimum latitude
+     */
 
     public double[] boxForCountry(String name) {
         double minX = Double.POSITIVE_INFINITY;
@@ -122,10 +147,22 @@ public class CountryData {
         return new double[]{maxX, maxY, minX, minY};
     }
 
+    /**
+     * Converts a longitude value from WGA84 to Mercator X.
+     *
+     * @param x the longitude value in WGA84
+     * @return the longitude value in Mercator X
+     */
     public static double wga84ToMercatorX(double x) {
         return x;
     }
 
+    /**
+     * Converts a latitude value from WGA84 to Mercator Y.
+     *
+     * @param y the latitude value in WGA84
+     * @return the latitude value in Mercator Y
+     */
     public static double wga84ToMercatorY(double y) {
         return Math.log(Math.tan((90.0 + y) * Math.PI / 360.0)) / (Math.PI / 180.0);
     }

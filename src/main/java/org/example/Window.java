@@ -8,6 +8,9 @@ public class Window extends JFrame implements KeyListener {
 
     Panel panel;
 
+    /**
+     * Constructs a Window object.
+     */
     public Window() {
         this.setTitle("Letadla");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -31,6 +34,11 @@ public class Window extends JFrame implements KeyListener {
 
     }
 
+    /**
+     * Handles key pressed events.
+     *
+     * @param e the KeyEvent object representing the key pressed event
+     */
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_I) {
