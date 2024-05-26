@@ -16,11 +16,14 @@ public class Window extends JFrame implements KeyListener {
         this.addKeyListener(this);
         this.setFocusable(true);
 
+        this.setFocusable(true);
+        this.setVisible(true);
+
         panel = new Panel();
         this.add(panel);
 
-        this.setFocusable(true);
-        this.setVisible(true);
+        revalidate();
+        repaint();
     }
 
     @Override

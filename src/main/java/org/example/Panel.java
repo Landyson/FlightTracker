@@ -32,10 +32,16 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     private boolean viewCities = true;
     private int tablePage = 0;
 
+    private boolean failedToUpdate = false;
+
+    /**
+     * Initializes a new Panel instance. This constructor sets up the initial
+     * state of the panel, including loading country and city data, setting start points,
+     * adding mouse listeners, and configuring timers for animation and periodic updates.
+     */
     public Panel(){
         this.countryData = new CountryData("lib/world-administrative-boundaries.csv");
         this.cityData = new CityData("lib/worldcities.csv", 250000);
-        CountryVector countryBox = countryData.nameToCountryVector("Czech Republic");
 
         this.startPoint = new double[]{20,0};
         this.moveX = startPoint[0];
@@ -51,7 +57,8 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         this.addMouseMotionListener(this);
         this.addMouseListener(this);
 
-        int millis = 16;
+        int fpsCount = 165;
+        int millis = (int) ((1.0/fpsCount) * 1000.0);
 
         Timer fps = new Timer(millis, e -> {
             deltaTime = System.currentTimeMillis() - lastTime + millis;
@@ -59,17 +66,21 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
             for (Plane p : planeData.planes){
                 p.animate((int) deltaTime);
             }
+            lastTime = System.currentTimeMillis();
             repaint();
         });
         fps.setRepeats(true);
         fps.start();
 
-        Timer timer = new Timer(5000, e -> {
-            updatePlaneData();
-            repaint();
-        });
-        timer.setRepeats(true);
-        timer.start();
+        if (failedToUpdate){
+            Timer timer = new Timer(5000, e -> {
+                updatePlaneData();
+                revalidate();
+                repaint();
+            });
+            timer.setRepeats(true);
+            timer.start();
+        }
     }
 
     public boolean isViewAll() {
@@ -164,6 +175,7 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
                 path.moveTo(x, y);
                 path.lineTo(withX, withY);
 
+                g.setColor(new Color(53, 181, 68));
                 g.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
                 g.draw(path);
 
@@ -200,7 +212,6 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         g.setColor(new Color(255,255,255));
         g.setFont(new Font("Ariel", Font.BOLD, 30));
         g.drawString("zoom: " + zoomRounded, getWidth() / 8, getHeight() / 8);
-        g.drawString("GPS: " + mouseXToGPS(currentMouseX) + ", " + mouseYToGPS(currentMouseY), getWidth() / 8, getHeight() / 8 + 30);
 
         //Table
         if (viewTable){
@@ -318,11 +329,14 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
 
     public void updatePlaneData(){
         try {
-            this.planeData = new PlaneData(countryData.boxForCountry("Czech Republic"));
+            this.planeData = new PlaneData();
             System.out.println("Updated.");
         }
         catch (Exception e){
             System.out.println(e.getMessage());
+            JOptionPane.showInternalMessageDialog(null, "API is currently unavailable.\n" +
+                    "Planes are generated randomly for program visualisation.");
+            this.planeData = new PlaneData(true);
         }
     }
 

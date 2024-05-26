@@ -6,18 +6,31 @@ import org.opensky.model.StateVector;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PlaneData {
 
     ArrayList<Plane> planes = new ArrayList<>();
+    private Random random = new Random();
 
-    public PlaneData(double[] box) throws Exception {
+    /**
+     * Creates a new PlaneData object and loads plane data from the OpenSky API.
+     * @throws Exception if there was an error loading the data
+     */
+    public PlaneData() throws Exception {
         try {
-            load(box);
+            load();
         } catch (Exception e) {
             throw e;
         }
+    }
 
+    /**
+     * Creates a new PlaneData object and generates random plane data.
+     * @param randomGenerate whether to generate random plane data
+     */
+    public PlaneData(boolean randomGenerate){
+        randomGeneratePlanes(2000);
     }
 
     public void load(double[] box) throws Exception {
@@ -28,7 +41,6 @@ public class PlaneData {
                     //new OpenSkyApi.BoundingBox(36.1425, 71.7779, -27.3476, 46.2217)
                     new OpenSkyApi.BoundingBox(1.6438, 74.6981, -132.3900, 46.6099)
             );
-
 
             for (StateVector vector : os.getStates()) {
                 String callSign = vector.getCallsign();
@@ -56,6 +68,39 @@ public class PlaneData {
         } catch (Exception e) {
             throw new Exception("Couldn't update.");
         }
+    }
+
+    /**
+     * Generates random plane data.
+     * @param planeAmount the number of planes to generate
+     */
+    public void randomGeneratePlanes(int planeAmount){
+        for (int i = 0; i < planeAmount; i++) {
+            String callsign = generateCallsign();
+            double[] coordinates = new double[]{(random.nextInt(361) - 180) * random.nextDouble(), (random.nextInt(100) - 20) * (Math.pow(random.nextDouble(), 0.5))};
+
+            double altitude = random.nextInt(11000) * random.nextDouble();
+            double velocity = (random.nextInt(380) + 120) * random.nextDouble();
+            double heading = random.nextInt(360) * random.nextDouble();
+
+            planes.add(new Plane(callsign, coordinates, altitude, velocity, heading));
+        }
+    }
+
+    /**
+     * Generates a random callsign for a plane.
+     * @return a random callsign
+     */
+    public String generateCallsign(){
+        String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 2; i++) {
+            sb.append(abc.charAt(random.nextInt(abc.length())));
+        }
+        for (int i = 0; i < 4; i++) {
+            sb.append(random.nextInt(10));
+        }
+        return sb.toString();
     }
 
 }
