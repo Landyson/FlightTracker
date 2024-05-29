@@ -114,7 +114,7 @@ public class Plane {
      * @param millis the number of milliseconds to animate
      */
     public void animate(int millis){
-        double currentVelocity = this.velocity * (millis / 1000.0) / (EARTH_RADIUS_M / 500);
+        double currentVelocity = this.velocity * (millis / 1000.0) / (EARTH_RADIUS_M / 400);
         double ang = heading + 90;
         this.coordinates[0] -= Math.cos(Math.toRadians(ang)) * currentVelocity;
         this.coordinates[1] += Math.sin(Math.toRadians(ang)) * currentVelocity;

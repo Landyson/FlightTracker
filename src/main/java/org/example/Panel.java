@@ -72,7 +72,7 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
         fps.setRepeats(true);
         fps.start();
 
-        if (failedToUpdate){
+        if (!failedToUpdate){
             Timer timer = new Timer(5000, e -> {
                 updatePlaneData();
                 revalidate();
@@ -326,16 +326,22 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
      * If the data retrieval fails, it catches he exception, displays an error message to the user,
      * and generates random plane data for visualization purposes.
      */
+
+    private int i = 0;
     public void updatePlaneData(){
         try {
             this.planeData = new PlaneData();
             System.out.println("Updated.");
+            i++;
         }
         catch (Exception e){
             System.out.println(e.getMessage());
-            JOptionPane.showInternalMessageDialog(null, "API is currently unavailable.\n" +
-                    "Planes are generated randomly for program visualisation.");
-            this.planeData = new PlaneData(true);
+            if (i < 1){
+                JOptionPane.showInternalMessageDialog(null, "API is currently unavailable.\n" +
+                        "Planes are generated randomly for program visualisation.");
+                this.planeData = new PlaneData(true);
+                i++;
+            }
         }
     }
 

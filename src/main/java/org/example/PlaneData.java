@@ -39,7 +39,7 @@ public class PlaneData {
      */
     public void load() throws Exception {
         try {
-            OpenSkyApi api = new OpenSkyApi("Landys", "flighttracker");
+            OpenSkyApi api = new OpenSkyApi("Landys", "15NitraM06");
 
             OpenSkyStates os = api.getStates(0, null,
                     new OpenSkyApi.BoundingBox(1.6438, 74.6981, -132.3900, 46.6099)
@@ -82,9 +82,9 @@ public class PlaneData {
             String callsign = generateCallsign();
             double[] coordinates = new double[]{(random.nextInt(361) - 180) * random.nextDouble(), (random.nextInt(100) - 20) * (Math.pow(random.nextDouble(), 0.5))};
 
-            double altitude = random.nextInt(11000) * random.nextDouble();
-            double velocity = (random.nextInt(380) + 120) * random.nextDouble();
-            double heading = random.nextInt(360) * random.nextDouble();
+            double altitude = (random.nextInt(11000) + 501);
+            double velocity = (random.nextInt(380) + 120);
+            double heading = random.nextInt(360);
 
             planes.add(new Plane(callsign, coordinates, altitude, velocity, heading));
         }
@@ -94,14 +94,15 @@ public class PlaneData {
      * Generates a random callsign for a plane.
      * @return a random callsign
      */
-    public String generateCallsign(){
+    public static String generateCallsign(){
+        Random random1 = new Random();
         String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 2; i++) {
-            sb.append(abc.charAt(random.nextInt(abc.length())));
+            sb.append(abc.charAt(random1.nextInt(abc.length())));
         }
         for (int i = 0; i < 4; i++) {
-            sb.append(random.nextInt(10));
+            sb.append(random1.nextInt(10));
         }
         return sb.toString();
     }

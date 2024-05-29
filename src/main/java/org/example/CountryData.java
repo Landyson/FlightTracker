@@ -18,6 +18,9 @@ public class CountryData {
         return countryVectors;
     }
 
+    public CountryData() {
+    }
+
     public void setCountryVectors(ArrayList<CountryVector> countryVectors) {
         this.countryVectors = countryVectors;
     }
