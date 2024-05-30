@@ -332,15 +332,18 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
      */
 
     private int i = 0;
+    private int j = 0;
     public void updatePlaneData(){
         try {
             this.planeData = new PlaneData(api);
             System.out.println("Updated.");
             i++;
+            j -= j;
         }
         catch (Exception e){
-            System.out.println(e.getMessage());
-            if (i < 1){
+            j++;
+            if ((i < 1) || (i > 1 && j > 5)){
+                System.out.println(e.getMessage());
                 JOptionPane.showInternalMessageDialog(null, "API is currently unavailable.\n" +
                         "Planes are generated randomly for program visualisation.");
                 this.planeData = new PlaneData(api, true);

@@ -53,7 +53,6 @@ public class CityData {
                         if (data[9 + offset] == null || data[9 + offset].equalsIgnoreCase("") || Integer.parseInt(data[9 + offset]) >= 50000000)
                             continue;
                         if (Integer.parseInt(data[9 + offset]) < cutoffPop) break;
-                        //System.out.println(data[9 + offset]);
                         pop = Integer.parseInt(data[9 + offset]);
                         break;
                     } catch (Exception ignored) {

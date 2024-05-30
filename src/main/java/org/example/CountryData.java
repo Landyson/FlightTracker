@@ -3,6 +3,8 @@ package org.example;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Objects;
@@ -33,7 +35,8 @@ public class CountryData {
      */
     public void load(String path) {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
             br.readLine();
             String s = "";
