@@ -1,12 +1,15 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
+import org.opensky.api.OpenSkyApi;
 import org.opensky.model.StateVector;
 import static org.junit.jupiter.api.Assertions.*;
 
 
 
 class PlaneDataTest {
+
+    OpenSkyApi api = new OpenSkyApi("Landys", "15NitraM06");
 
     private StateVector mockStateVector;
 
@@ -16,7 +19,7 @@ class PlaneDataTest {
 
     @org.junit.jupiter.api.Test
     void randomGeneratePlanes() {
-        PlaneData planeData = new PlaneData(true); // Use the constructor that generates random plane data
+        PlaneData planeData = new PlaneData(api, true); // Use the constructor that generates random plane data
 
 
          int planes = 2000;

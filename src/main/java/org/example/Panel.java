@@ -1,11 +1,15 @@
 package org.example;
 
+import org.opensky.api.OpenSkyApi;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Path2D;
 
 public class Panel extends JPanel implements MouseWheelListener, MouseMotionListener, MouseListener {
+
+    OpenSkyApi api = new OpenSkyApi("Landys", "flighttracker");
 
     private CountryData countryData;
     private double[] startPoint;
@@ -40,8 +44,8 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
      * adding mouse listeners, and configuring timers for animation and periodic updates.
      */
     public Panel(){
-        this.countryData = new CountryData("lib/world-administrative-boundaries.csv");
-        this.cityData = new CityData("lib/worldcities.csv", 250000);
+        this.countryData = new CountryData("world-administrative-boundaries.csv");
+        this.cityData = new CityData("worldcities.csv", 250000);
 
         this.startPoint = new double[]{20,0};
         this.moveX = startPoint[0];
@@ -330,7 +334,7 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
     private int i = 0;
     public void updatePlaneData(){
         try {
-            this.planeData = new PlaneData();
+            this.planeData = new PlaneData(api);
             System.out.println("Updated.");
             i++;
         }
@@ -339,7 +343,7 @@ public class Panel extends JPanel implements MouseWheelListener, MouseMotionList
             if (i < 1){
                 JOptionPane.showInternalMessageDialog(null, "API is currently unavailable.\n" +
                         "Planes are generated randomly for program visualisation.");
-                this.planeData = new PlaneData(true);
+                this.planeData = new PlaneData(api, true);
                 i++;
             }
         }

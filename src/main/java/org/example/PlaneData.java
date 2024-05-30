@@ -10,6 +10,7 @@ import java.util.Random;
 
 public class PlaneData {
 
+    OpenSkyApi api;
     ArrayList<Plane> planes = new ArrayList<>();
     private Random random = new Random();
 
@@ -17,7 +18,8 @@ public class PlaneData {
      * Creates a new PlaneData object and loads plane data from the OpenSky API.
      * @throws Exception if there was an error loading the data
      */
-    public PlaneData() throws Exception {
+    public PlaneData(OpenSkyApi api) throws Exception {
+        this.api = api;
         try {
             load();
         } catch (Exception e) {
@@ -29,7 +31,8 @@ public class PlaneData {
      * Creates a new PlaneData object and generates random plane data.
      * @param randomGenerate whether to generate random plane data
      */
-    public PlaneData(boolean randomGenerate){
+    public PlaneData(OpenSkyApi api, boolean randomGenerate){
+        this.api = api;
         randomGeneratePlanes(2000);
     }
 
@@ -39,8 +42,6 @@ public class PlaneData {
      */
     public void load() throws Exception {
         try {
-            OpenSkyApi api = new OpenSkyApi("Landys", "15NitraM06");
-
             OpenSkyStates os = api.getStates(0, null,
                     new OpenSkyApi.BoundingBox(1.6438, 74.6981, -132.3900, 46.6099)
             );
