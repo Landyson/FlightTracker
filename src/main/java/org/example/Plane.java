@@ -40,7 +40,7 @@ public class Plane {
     }
 
     /**
-     * Sets the plane's call sign.
+     * Sets the plane's call sign if there isn´t it is set to N/A.
      * @param callSign the plane's call sign
      */
     public void setCallSign(String callSign) {
